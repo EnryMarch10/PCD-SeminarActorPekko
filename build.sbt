@@ -1,5 +1,3 @@
-import scala.scalanative.build.*
-
 val scala3Version = "3.7.4"
 
 ThisBuild / scalaVersion := scala3Version
@@ -38,30 +36,22 @@ ThisBuild / scalacOptions ++= Seq(
   "-language:strictEquality",
   "-language:implicitConversions"
 )
-ThisBuild / coverageEnabled := true
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 ThisBuild / wartremoverErrors ++= Warts.allBut(Wart.Any)
 ThisBuild / libraryDependencies ++= Seq(
-  "org.scalatest" %%% "scalatest" % "3.2.19" % Test
+  "org.scalatest" %% "scalatest" % "3.2.19" % Test
 )
 
-lazy val root = crossProject(JSPlatform, JVMPlatform, NativePlatform)
-  .crossType(CrossType.Pure)
+lazy val root = project
   .in(file("."))
-  .configs()
-  .nativeSettings(
-    nativeConfig ~= {
-      _.withLTO(LTO.default)
-        .withMode(Mode.releaseSize)
-        .withGC(GC.immix)
-    }
-  )
-  .jsSettings(
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.0",
-    scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= { _.withOptimizer(true) }
-  )
   .settings(
     name := "Template-for-Scala-Multiplatform-Projects",
   )
+
+lazy val basics = project
+  .in(file("basics"))
+  .settings(
+    name := "basics",
+  )
+  .dependsOn(root)
