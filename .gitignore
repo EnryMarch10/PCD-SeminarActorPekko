@@ -1,0 +1,16 @@
+# Target
+target
+
+# BSP
+.bsp
+
+# Metals
+/project/**/metals.sbt
+/.bloop
+/.metals
+
+# IDEs
+/.idea
+/.vscode
+
+node_modules/
