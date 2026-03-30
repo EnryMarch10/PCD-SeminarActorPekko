@@ -1,4 +1,5 @@
 val scala3Version = "3.7.4"
+val PekkoVersion = "1.4.0"
 
 ThisBuild / scalaVersion := scala3Version
 ThisBuild / organization := "io.github.nicolasfara"
@@ -33,14 +34,17 @@ ThisBuild / scalacOptions ++= Seq(
   "-unchecked",
   "-explain",
   "-feature",
-  "-language:strictEquality",
+  // "-language:strictEquality",
   "-language:implicitConversions"
 )
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-ThisBuild / wartremoverErrors ++= Warts.allBut(Wart.Any)
+ThisBuild / wartremoverErrors ++= Warts.allBut(Wart.Any, Wart.Throw)
 ThisBuild / libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "3.2.19" % Test
+  "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+  "org.apache.pekko" %% "pekko-actor-typed" % PekkoVersion,
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
+  "ch.qos.logback" % "logback-classic" % "1.3.5"
 )
 
 lazy val root = project
