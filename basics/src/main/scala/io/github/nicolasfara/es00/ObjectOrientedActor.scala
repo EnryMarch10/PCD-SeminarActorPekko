@@ -4,7 +4,6 @@ import org.apache.pekko.actor.typed.scaladsl.*
 import org.apache.pekko.actor.typed.*
 import io.github.nicolasfara.es00.Counter.Command
 
-
 class Counter(context: ActorContext[Command], private var from: Int, val to: Int) extends AbstractBehavior[Command](context):
 	def onMessage(msg: Command): Behavior[Command] = msg match
 		case Command.Tick if from < to =>
@@ -12,7 +11,6 @@ class Counter(context: ActorContext[Command], private var from: Int, val to: Int
 			from += 1
 			this
 		case _ => Behaviors.stopped		
-	
 
 object Counter:
 	enum Command:
