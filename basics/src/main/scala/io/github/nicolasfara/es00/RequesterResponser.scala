@@ -4,6 +4,7 @@ import org.apache.pekko.actor.typed.*
 import org.apache.pekko.actor.typed.scaladsl.*
 
 object RequestResponseProtocol:
+
   enum RequesterCommand:
     case Start
     case GotResponse(response: String)
@@ -12,6 +13,7 @@ object RequestResponseProtocol:
     case Request(msg: String, replyTo: ActorRef[RequesterCommand])
 
 object ResponderActor:
+
   export RequestResponseProtocol.*
   export RequestResponseProtocol.ResponderCommand.*
 
@@ -23,6 +25,7 @@ object ResponderActor:
         Behaviors.same
 
 object RequesterActor:
+
   export RequestResponseProtocol.*
   export RequestResponseProtocol.RequesterCommand.*
 
@@ -38,6 +41,7 @@ object RequesterActor:
           Behaviors.stopped
 
 object RequestResponseGuardian:
+
   def apply(): Behavior[RequestResponseProtocol.RequesterCommand] = Behaviors.setup: context =>
     val responder = context.spawn(ResponderActor(), "responder")
     RequesterActor(responder)
@@ -45,6 +49,3 @@ object RequestResponseGuardian:
 @main def runRequesterResponser(): Unit =
   val system = ActorSystem(RequestResponseGuardian(), "HelloAkka")
   system ! RequestResponseProtocol.RequesterCommand.Start
-
-
-

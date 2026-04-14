@@ -4,6 +4,7 @@ import org.apache.pekko.actor.typed.scaladsl.*
 import org.apache.pekko.actor.typed.*
 
 object ParentActor:
+
   def apply(): Behavior[String] = Behaviors.setup: ctx =>
     ctx.watch(ctx.spawn(ChildFailingActor(), "child-actor"))
     Behaviors
@@ -13,6 +14,7 @@ object ParentActor:
           Behaviors.stopped
 
 object ChildFailingActor:
+
   def apply(): Behavior[String] = Behaviors.setup: _ =>
     throw new RuntimeException("I failed")
 

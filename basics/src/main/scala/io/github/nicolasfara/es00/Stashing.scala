@@ -6,7 +6,7 @@ import org.apache.pekko.actor.typed.scaladsl.AskPattern.*
 import org.apache.pekko.util.Timeout
 
 import scala.collection.concurrent.TrieMap
-import scala.concurrent.{Await, ExecutionContext, Future, Promise}
+import scala.concurrent.{ Await, ExecutionContext, Future, Promise }
 import scala.concurrent.duration.*
 import scala.util.Failure
 import scala.util.Success
@@ -31,31 +31,38 @@ class MockDB(using executionContext: ExecutionContext) extends DB:
     data.getOrElse(id, "")
 
 class SlowMockDB(
-  initialData: Map[UUID, String],
-  loadDelay: FiniteDuration,
-  storeDelay: FiniteDuration
+    initialData: Map[UUID, String],
+    loadDelay: FiniteDuration,
+    storeDelay: FiniteDuration,
 ) extends DB:
   private val data = TrieMap.from(initialData)
 
   def store(id: UUID, value: String): Future[Unit] =
     val promise = Promise[Unit]()
     println(s"[db] storing '$value' for $id, this will take $storeDelay")
-    CompletableFuture.delayedExecutor(storeDelay.toMillis, TimeUnit.MILLISECONDS).execute: () =>
-      data.update(id, value)
-      println(s"[db] store completed for $id")
-      promise.success(())
+    CompletableFuture
+      .delayedExecutor(storeDelay.toMillis, TimeUnit.MILLISECONDS)
+      .execute: () =>
+        data.update(id, value)
+        println(s"[db] store completed for $id")
+        promise.success(())
     promise.future
 
   def load(id: UUID): Future[String] =
     val promise = Promise[String]()
     println(s"[db] loading state for $id, this will take $loadDelay")
-    CompletableFuture.delayedExecutor(loadDelay.toMillis, TimeUnit.MILLISECONDS).execute: () =>
-      val loaded = data.getOrElse(id, "")
-      println(s"[db] load completed for $id with '$loaded'")
-      promise.success(loaded)
+    CompletableFuture
+      .delayedExecutor(loadDelay.toMillis, TimeUnit.MILLISECONDS)
+      .execute: () =>
+        val loaded = data.getOrElse(id, "")
+        println(s"[db] load completed for $id with '$loaded'")
+        promise.success(loaded)
     promise.future
 
+end SlowMockDB
+
 object Stashing:
+
   enum Command:
     case Save(value: String, replyTo: ActorRef[Unit])
     case Get(replyTo: ActorRef[String])
@@ -68,16 +75,17 @@ object Stashing:
       new Stashing(context, stashBuffer, id, db).start()
 
 class Stashing(
-  context: ActorContext[Command],
-  buffer: StashBuffer[Command],
-  id: UUID,
-  db: DB
+    context: ActorContext[Command],
+    buffer: StashBuffer[Command],
+    id: UUID,
+    db: DB,
 ):
+
   private def start(): Behavior[Command] =
     context.log.info("Starting actor {}, loading state from the DB", id)
     context.pipeToSelf(db.load(id)):
       case Success(maybeValue) => Command.InitialState(maybeValue)
-      case Failure(exception)  => Command.DBError(exception)
+      case Failure(exception) => Command.DBError(exception)
 
     Behaviors.receiveMessage:
       case InitialState(value) =>
@@ -99,7 +107,7 @@ class Stashing(
     case Save(value, replyTo) =>
       context.log.info("Received Save('{}'), persisting it to the DB", value)
       context.pipeToSelf(db.store(id, value)):
-        case Success(_)     => Command.SaveSuccess
+        case Success(_) => Command.SaveSuccess
         case Failure(error) => Command.DBError(error)
       saving(value, replyTo)
 
@@ -116,6 +124,8 @@ class Stashing(
       val _ = buffer.stash(cmd)
       Behaviors.same
 
+end Stashing
+
 @main def runStashing(): Unit =
   given Timeout = 10.seconds
 
@@ -125,10 +135,11 @@ class Stashing(
       val db = new SlowMockDB(
         initialData = Map(entityId -> "state loaded from the DB"),
         loadDelay = 4.seconds,
-        storeDelay = 2.seconds
+        storeDelay = 2.seconds,
       )
-      Stashing(entityId, db),
-    "StashingExample"
+      Stashing(entityId, db)
+    ,
+    "StashingExample",
   )
 
   given ActorSystem[Command] = system
@@ -143,7 +154,7 @@ class Stashing(
     case Failure(error) => println(s"[client] first Get failed: ${error.getMessage}")
 
   save.onComplete:
-    case Success(_)     => println("[client] Save completed")
+    case Success(_) => println("[client] Save completed")
     case Failure(error) => println(s"[client] Save failed: ${error.getMessage}")
 
   secondRead.onComplete:
@@ -155,3 +166,4 @@ class Stashing(
   Await.result(secondRead, 10.seconds)
 
   system.terminate()
+end runStashing

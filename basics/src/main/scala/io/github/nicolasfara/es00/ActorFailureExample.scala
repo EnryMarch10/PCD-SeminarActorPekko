@@ -4,10 +4,12 @@ import org.apache.pekko.actor.typed.scaladsl.*
 import org.apache.pekko.actor.typed.*
 
 class SupervisorActor(context: ActorContext[String]) extends AbstractBehavior[String](context):
+
   val child = context.spawn(
-    Behaviors.supervise(SupervisedActor())
+    Behaviors
+      .supervise(SupervisedActor())
       .onFailure[Exception](SupervisorStrategy.restart),
-    "child-actor"
+    "child-actor",
   )
 
   def onMessage(msg: String): Behavior[String] = msg match
@@ -19,6 +21,7 @@ object SupervisorActor:
   def apply(): Behavior[String] = Behaviors.setup(ctx => new SupervisorActor(ctx))
 
 class SupervisedActor(context: ActorContext[String]) extends AbstractBehavior[String](context):
+
   def onMessage(msg: String): Behavior[String] = msg match
     case "fail" =>
       println(s"Child ${context.self} failing now")

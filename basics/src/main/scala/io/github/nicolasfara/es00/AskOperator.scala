@@ -9,29 +9,28 @@ import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.*
 
 object GreeterActor:
-	enum Command:
-		case Greet(name: String, replyTo: ActorRef[Greeting])
 
-	final case class Greeting(message: String)
+  enum Command:
+    case Greet(name: String, replyTo: ActorRef[Greeting])
 
-	def apply(): Behavior[Command] = Behaviors.receiveMessage:
-		case Command.Greet(name, replyTo) =>
-			replyTo ! Greeting(s"Hello, $name!")
-			Behaviors.same
+  final case class Greeting(message: String)
+
+  def apply(): Behavior[Command] = Behaviors.receiveMessage:
+    case Command.Greet(name, replyTo) =>
+      replyTo ! Greeting(s"Hello, $name!")
+      Behaviors.same
 
 @main def runAskOperator(): Unit =
-	given Timeout = 3.seconds
+  given Timeout = 3.seconds
 
-	val system = ActorSystem(GreeterActor(), "AskExample")
-	given ActorSystem[GreeterActor.Command] = system
+  val system = ActorSystem(GreeterActor(), "AskExample")
+  given ActorSystem[GreeterActor.Command] = system
 
-	val greeting: Future[GreeterActor.Greeting] = system ? { replyTo =>
-		GreeterActor.Command.Greet("Pekko", replyTo)
-	}
+  val greeting: Future[GreeterActor.Greeting] = system ? { replyTo =>
+    GreeterActor.Command.Greet("Pekko", replyTo)
+  }
 
-	val result = Await.result(greeting, 3.seconds)
-	println(result.message)
+  val result = Await.result(greeting, 3.seconds)
+  println(result.message)
 
-	system.terminate()
-
-
+  system.terminate()

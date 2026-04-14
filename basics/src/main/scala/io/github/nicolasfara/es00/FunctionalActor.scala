@@ -4,6 +4,7 @@ import org.apache.pekko.actor.typed.scaladsl.*
 import org.apache.pekko.actor.typed.*
 
 object CounterActor:
+
   enum Command:
     case Tick
 
@@ -18,5 +19,4 @@ object CounterActor:
 
 @main def runFunctionalActor(): Unit =
   val system = ActorSystem(CounterActor(0, 10), "HelloAkka")
-  for _ <- 0 until 20 do
-    system ! CounterActor.Tick
+  for _ <- 0 until 20 do system ! CounterActor.Tick
