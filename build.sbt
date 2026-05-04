@@ -39,7 +39,7 @@ ThisBuild / scalacOptions ++= Seq(
 )
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-ThisBuild / wartremoverErrors ++= Warts.allBut(Wart.Any, Wart.Throw, Wart.Recursion, Wart.Var, Wart.ImplicitParameter)
+ThisBuild / wartremoverErrors ++= Warts.allBut(Wart.Any, Wart.Throw, Wart.Recursion, Wart.Var, Wart.ImplicitParameter, Wart.Nothing)
 ThisBuild / libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.20" % Test,
   "org.apache.pekko" %% "pekko-actor-typed" % PekkoVersion,
@@ -58,5 +58,26 @@ lazy val basics = project
   .in(file("basics"))
   .settings(
     name := "basics",
+  )
+  .dependsOn(root)
+
+lazy val cluster = project
+  .in(file("cluster"))
+  .settings(
+    name := "cluster",
+    run / fork := true,
+    assembly / assemblyOutputPath := baseDirectory.value / "target" / "cluster.jar",
+    libraryDependencies ++= Seq(
+      "org.apache.pekko" %% "pekko-cluster-typed" % PekkoVersion,
+      "org.apache.pekko" %% "pekko-cluster-sharding-typed" % PekkoVersion,
+      "org.apache.pekko" %% "pekko-serialization-jackson" % PekkoVersion
+    ),
+    assembly / assemblyMergeStrategy := {
+      case PathList("META-INF", "versions", "9", "module-info.class") => MergeStrategy.discard
+      case PathList("module-info.class")                              => MergeStrategy.discard
+      case x =>
+        val oldStrategy = (assembly / assemblyMergeStrategy).value
+        oldStrategy(x)
+    }
   )
   .dependsOn(root)
