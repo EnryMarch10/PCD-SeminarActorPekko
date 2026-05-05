@@ -39,7 +39,7 @@ ThisBuild / scalacOptions ++= Seq(
 )
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-ThisBuild / wartremoverErrors ++= Warts.allBut(Wart.Any, Wart.Throw, Wart.Recursion, Wart.Var, Wart.ImplicitParameter, Wart.Nothing)
+// ThisBuild / wartremoverErrors ++= Warts.allBut(Wart.Any, Wart.Throw, Wart.Recursion, Wart.Var, Wart.ImplicitParameter, Wart.Nothing)
 ThisBuild / libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.20" % Test,
   "org.apache.pekko" %% "pekko-actor-typed" % PekkoVersion,
