@@ -1,0 +1,33 @@
+services:
+  seed:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.simple
+    ports:
+      - "1600:1600"
+    environment:
+      - CLUSTER_IP=seed
+      - CLUSTER_PORT=1600
+      - SEED_PORT_1600_TCP_ADDR=seed
+
+  node1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.simple
+    # ports:
+    #   - "2552:2551"
+    environment:
+      - CLUSTER_IP=node1
+      - CLUSTER_PORT=2552
+      - SEED_PORT_1600_TCP_ADDR=seed
+
+  node2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.simple
+    # ports:
+    #   - "2553:2551"
+    environment:
+      - CLUSTER_IP=node2
+      - CLUSTER_PORT=2553
+      - SEED_PORT_1600_TCP_ADDR=seed
