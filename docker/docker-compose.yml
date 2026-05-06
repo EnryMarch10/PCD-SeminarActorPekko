@@ -1,7 +1,7 @@
 services:
   seed:
     build:
-      context: .
+      context: ../
       dockerfile: docker/Dockerfile.simple
     ports:
       - "1600:1600"
@@ -12,7 +12,7 @@ services:
 
   node1:
     build:
-      context: .
+      context: ../
       dockerfile: docker/Dockerfile.simple
     # ports:
     #   - "2552:2551"
@@ -23,7 +23,7 @@ services:
 
   node2:
     build:
-      context: .
+      context: ../
       dockerfile: docker/Dockerfile.simple
     # ports:
     #   - "2553:2551"
