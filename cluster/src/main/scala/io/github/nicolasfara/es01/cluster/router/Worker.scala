@@ -1,4 +1,4 @@
-package io.github.nicolasfara.es01.cluster.factorial
+package io.github.nicolasfara.es01.cluster.router
 
 import org.apache.pekko.actor.typed.*
 import io.github.nicolasfara.es01.cluster.CborSerializable
@@ -6,11 +6,9 @@ import org.apache.pekko.actor.typed.scaladsl.*
 import org.apache.pekko.actor.typed.receptionist.*
 
 object Worker:
-  enum Command extends CborSerializable:
-    case EvalFactorial(n: Int, replyTo: ActorRef[Command.Result])
-    case Result(n: Int, result: BigInt)
-
-  export Command.*
+  sealed trait Command extends CborSerializable
+  final case class EvalFactorial(n: Int, replyTo: ActorRef[Result]) extends Command
+  final case class Result(n: Int, result: BigInt) extends Command
 
   def apply(): Behavior[Command] = Behaviors.setup: _ =>
     Behaviors.receiveMessagePartial:
